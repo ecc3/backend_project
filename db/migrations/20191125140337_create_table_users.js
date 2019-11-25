@@ -3,7 +3,7 @@ exports.up = function(knex) {
   return knex.schema.createTable("users", usersTable => {
     usersTable.string("username").primary();
     usersTable.string("avatar_url");
-    usersTable.string("real_name");
+    usersTable.string("name");
   });
 };
 
