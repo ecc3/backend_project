@@ -10,4 +10,7 @@ exports.up = function(knex) {
   });
 };
 
-exports.down = function(knex) {};
+exports.down = function(knex) {
+  console.log("removing table comments");
+  return knex.schema.dropTable("comments");
+};
