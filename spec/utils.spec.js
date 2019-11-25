@@ -4,7 +4,7 @@ const {
   makeRefObj,
   formatComments
 } = require("../db/utils/utils");
-const { articleData } = require("../db/data/test-data");
+const { articleData, topicData } = require("../db/data/test-data");
 
 describe("formatDates", () => {
   it("does not mutate passed list", () => {
@@ -24,6 +24,21 @@ describe("formatDates", () => {
   });
 });
 
-describe("makeRefObj", () => {});
+describe("makeRefObj", () => {
+  it("does not mutate the passed list", () => {
+    const topicDataCopy = [...topicData];
+    formatDates(topicDataCopy);
+    expect(topicDataCopy).to.deep.equal(topicData);
+  });
+  it("returns a new object", () => {
+    const result = makeRefObj(topicData);
+    expect(typeof result).to.equal("object");
+    expect(result).to.not.equal(topicData);
+  });
+  it("returns an object with key value pairs equivalent to the id and name values of the passed objects", () => {
+    const result = makeRefObj([{ article_id: 1, title: "A" }]);
+    expect(result.A).to.equal(1);
+  });
+});
 
 describe("formatComments", () => {});
