@@ -107,6 +107,50 @@ describe("app", () => {
               });
           });
         });
+        describe("PATCH", () => {
+          it("returns status 200", () => {
+            return request(app)
+              .patch("/api/articles/3")
+              .send({ inc_votes: 10 })
+              .expect(200);
+          });
+          it("increases the number of votes by the passed number", () => {
+            return request(app)
+              .patch("/api/articles/4")
+              .send({ inc_votes: 10 })
+              .expect(200)
+              .then(({ body: { votes } }) => {
+                expect(votes).to.equal(10);
+              });
+          });
+          it("decrements the number of votes when passed a negative number", () => {
+            return request(app)
+              .patch("/api/articles/1")
+              .send({ inc_votes: -23 })
+              .expect(200)
+              .then(({ body: { votes } }) => {
+                expect(votes).to.equal(77);
+              });
+          });
+          it("returns the updated article object", () => {
+            return request(app)
+              .patch("/api/articles/5")
+              .send({ inc_votes: 10 })
+              .expect(200)
+              .then(({ body }) => {
+                expect(body).to.deep.equal({
+                  article_id: 5,
+                  title: "UNCOVERED: catspiracy to bring down democracy",
+                  topic: "cats",
+                  author: "rogersop",
+                  body:
+                    "Bastet walks amongst us, and the cats are taking arms!",
+                  created_at: "2002-11-19T12:21:54.171Z",
+                  votes: 10
+                });
+              });
+          });
+        });
       });
     });
   });
