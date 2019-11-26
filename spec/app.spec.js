@@ -59,6 +59,53 @@ describe("app", () => {
                 });
               });
           });
+          //add tests for errors 404 and 405
+        });
+      });
+    });
+    describe("/articles", () => {
+      describe("/:article_id", () => {
+        describe("GET", () => {
+          it("returns status 200", () => {
+            return request(app)
+              .get("/api/articles/2")
+              .expect(200);
+          });
+          it("sends the required article as an object with the correct properties", () => {
+            return request(app)
+              .get("/api/articles/3")
+              .expect(200)
+              .then(response => {
+                expect(response.body).to.have.keys([
+                  "author",
+                  "title",
+                  "article_id",
+                  "body",
+                  "topic",
+                  "created_at",
+                  "votes",
+                  "comment_count"
+                ]);
+                expect(response.body).to.deep.equal({
+                  article_id: 3,
+                  title: "Eight pug gifs that remind me of mitch",
+                  topic: "mitch",
+                  author: "icellusedkars",
+                  body: "some gifs",
+                  created_at: "2010-11-17T12:21:54.171Z",
+                  votes: 0,
+                  comment_count: 0
+                });
+              });
+          });
+          it("returns the correct comment count for comments associated with the article", () => {
+            return request(app)
+              .get("/api/articles/5")
+              .expect(200)
+              .then(({ body }) => {
+                expect(body.comment_count).to.equal(2);
+              });
+          });
         });
       });
     });
