@@ -1,9 +1,12 @@
 process.env.NODE_ENV = "test";
 
-const { expect } = require("chai");
+const chai = require("chai");
+const { expect } = chai;
 const request = require("supertest");
 const app = require("../app");
 const knex = require("../connection");
+
+chai.use(require("chai-sorted"));
 
 after(() => {
   return knex.destroy();
@@ -148,6 +151,103 @@ describe("app", () => {
                   created_at: "2002-11-19T12:21:54.171Z",
                   votes: 10
                 });
+              });
+          });
+        });
+      });
+      describe("/comments", () => {
+        describe("POST", () => {
+          it("responds with status 201", () => {
+            return request(app)
+              .post("/api/articles/5/comments")
+              .send({
+                username: "butter_bridge",
+                body: "GUY FIERI bad bad bad"
+              })
+              .expect(201);
+          });
+          it("responds with the posted comment", () => {
+            return request(app)
+              .post("/api/articles/7/comments")
+              .send({
+                username: "butter_bridge",
+                body:
+                  "GUY FIERI, have you eaten at your new restaurant in Times Square? Have you pulled up one of the 500 seats at Guy’s American Kitchen & Bar and ordered a meal? Did you eat the food? Did it live up to your expectations? Did panic grip your soul as you stared into the whirling hypno wheel of the menu, where adjectives and nouns spin in a crazy vortex?"
+              })
+              .expect(201)
+              .then(({ body }) => {
+                expect(body).to.have.keys([
+                  "comment_id",
+                  "author",
+                  "article_id",
+                  "votes",
+                  "created_at",
+                  "body"
+                ]);
+                expect(body.article_id).to.equal(7);
+                expect(body.author).to.equal("butter_bridge");
+                expect(body.votes).to.equal(0);
+                expect(body.body).to.equal(
+                  "GUY FIERI, have you eaten at your new restaurant in Times Square? Have you pulled up one of the 500 seats at Guy’s American Kitchen & Bar and ordered a meal? Did you eat the food? Did it live up to your expectations? Did panic grip your soul as you stared into the whirling hypno wheel of the menu, where adjectives and nouns spin in a crazy vortex?"
+                );
+              });
+          });
+          //check new comment has been added to total??
+        });
+        describe("GET", () => {
+          it("returns a status of 200", () => {
+            return request(app)
+              .get("/api/articles/9/comments")
+              .expect(200);
+          });
+          it("returns an array of comments for the given article with the correct keys", () => {
+            return request(app)
+              .get("/api/articles/9/comments")
+              .expect(200)
+              .then(({ body }) => {
+                expect(body.comments.length).to.equal(2);
+                expect(body.comments[0]).to.have.keys([
+                  "comment_id",
+                  "article_id",
+                  "votes",
+                  "created_at",
+                  "author",
+                  "body"
+                ]);
+                expect(body.comments[0].article_id).to.equal(9);
+                expect(body.comments[1].article_id).to.equal(9);
+              });
+          });
+          it("accepts a sort_by query that defaults to created_at and order query that defaults to desc", () => {
+            return request(app)
+              .get("/api/articles/1/comments")
+              .expect(200)
+              .then(({ body }) => {
+                expect(body.comments).to.be.descendingBy("created_at");
+              });
+          });
+          it("accepts a sort_by query that sorts by a number field", () => {
+            return request(app)
+              .get("/api/articles/1/comments?sort_by=votes")
+              .expect(200)
+              .then(({ body }) => {
+                expect(body.comments).to.be.descendingBy("votes");
+              });
+          });
+          it("accepts a sort_by query that sorts by a string field", () => {
+            return request(app)
+              .get("/api/articles/1/comments?sort_by=author")
+              .expect(200)
+              .then(({ body }) => {
+                expect(body.comments).to.be.descendingBy("author");
+              });
+          });
+          it("accepts an order query that can be set to asc or desc", () => {
+            return request(app)
+              .get("/api/articles/1/comments?sort_by=author&order=asc")
+              .expect(200)
+              .then(({ body }) => {
+                expect(body.comments).to.be.ascendingBy("author");
               });
           });
         });
