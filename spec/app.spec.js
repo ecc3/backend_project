@@ -334,5 +334,51 @@ describe("app", () => {
         });
       });
     });
+    describe("/comments", () => {
+      describe("/:comment_id", () => {
+        describe("PATCH", () => {
+          it("returns status 200", () => {
+            return request(app)
+              .patch("/api/comments/1")
+              .send({ inc_votes: 10 })
+              .expect(200);
+          });
+          it("returns the updated comment with the votes updated", () => {
+            return request(app)
+              .patch("/api/comments/3")
+              .send({ inc_votes: 10 })
+              .expect(200)
+              .then(({ body }) => {
+                expect(body).to.deep.equal({
+                  comment_id: 3,
+                  article_id: 1,
+                  body:
+                    "Replacing the quiet elegance of the dark suit and tie with the casual indifference of these muted earth tones is a form of fashion suicide, but, uh, call me crazy — onyou it works.",
+                  author: "icellusedkars",
+                  votes: 110,
+                  created_at: "2015-11-23T12:36:03.389Z"
+                });
+              });
+          });
+          it("returns the updated comment with points removed if passed a negative number", () => {
+            return request(app)
+              .patch("/api/comments/4")
+              .send({ inc_votes: -50 })
+              .expect(200)
+              .then(({ body }) => {
+                expect(body).to.deep.equal({
+                  comment_id: 4,
+                  article_id: 1,
+                  body:
+                    " I carry a log — yes. Is it funny to you? It is not to me.",
+                  author: "icellusedkars",
+                  votes: -150,
+                  created_at: "2014-11-23T12:36:03.389Z"
+                });
+              });
+          });
+        });
+      });
+    });
   });
 });
