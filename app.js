@@ -6,6 +6,9 @@ app.use(express.json());
 const apiRouter = require("./routes/api");
 
 app.use("/api", apiRouter);
+app.all("/*", (req, res, next) => {
+  res.status(404).send({ msg: "Path not found" });
+});
 
 app.use((err, req, res, next) => {
   console.log(err);

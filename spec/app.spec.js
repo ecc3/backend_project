@@ -17,6 +17,14 @@ before(() => {
 });
 
 describe("app", () => {
+  it("returns status 404 Not Found when using a path that does not exist", () => {
+    return request(app)
+      .get("/api/tipccs")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).to.equal("Path not found");
+      });
+  });
   describe("/api", () => {
     describe("/topics", () => {
       describe("GET", () => {
@@ -387,8 +395,10 @@ describe("app", () => {
           it("removes comment from the database", () => {
             return request(app)
               .delete("/api/comments/8")
-              .expect(404);
-            //add extra testing when written error handling
+              .expect(404)
+              .then(({ body }) => {
+                expect(body.msg).to.equal("comment_id 8 not found");
+              });
           });
         });
       });
