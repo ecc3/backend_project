@@ -10,7 +10,7 @@ exports.fetchArticle = article_id => {
     .groupBy("articles.article_id");
 };
 
-exports.updateArticle = (article_id, inc_votes) => {
+exports.updateArticle = (article_id, inc_votes = 0) => {
   return knex
     .select("votes")
     .from("articles")

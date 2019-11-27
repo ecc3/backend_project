@@ -21,7 +21,8 @@ exports.patchArticleById = (req, res, next) => {
   const { inc_votes } = req.body;
   updateArticle(article_id, inc_votes)
     .then(([article]) => {
-      res.status(200).send(article);
+      if (article) res.status(200).send(article);
+      else return Promise.reject({ status: 404, msg: "Article not found" });
     })
     .catch(next);
 };
