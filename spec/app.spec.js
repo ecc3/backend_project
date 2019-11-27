@@ -178,7 +178,7 @@ describe("app", () => {
                   body: "some gifs",
                   created_at: "2010-11-17T12:21:54.171Z",
                   votes: 0,
-                  comment_count: 0
+                  comment_count: "0"
                 });
               });
           });
@@ -187,7 +187,7 @@ describe("app", () => {
               .get("/api/articles/5")
               .expect(200)
               .then(({ body }) => {
-                expect(body.comment_count).to.equal(2);
+                expect(body.comment_count).to.equal("2");
               });
           });
         });
