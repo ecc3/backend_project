@@ -32,7 +32,8 @@ exports.patchCommentById = (req, res, next) => {
   const { inc_votes } = req.body;
   updateCommentById(comment_id, inc_votes)
     .then(([comment]) => {
-      res.status(200).send(comment);
+      if (comment) res.status(200).send(comment);
+      else return Promise.reject({ status: 404, msg: "Comment not found" });
     })
     .catch(next);
 };

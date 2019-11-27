@@ -457,6 +457,42 @@ describe("app", () => {
                 });
               });
           });
+          it("returns 404 for valid id not found", () => {
+            return request(app)
+              .patch("/api/comments/55")
+              .send({ inc_votes: 10 })
+              .expect(404)
+              .then(({ body }) => {
+                expect(body.msg).to.equal("Comment not found");
+              });
+          });
+          it("returns 400 for invalid id", () => {
+            return request(app)
+              .patch("/api/comments/bad_id")
+              .send({ inc_votes: 10 })
+              .expect(400)
+              .then(({ body }) => {
+                expect(body.msg).to.equal("Bad request");
+              });
+          });
+          it("returns 400 for invalid value passed in body", () => {
+            return request(app)
+              .patch("/api/comments/3")
+              .send({ inc_votes: "ten" })
+              .expect(400)
+              .then(({ body }) => {
+                expect(body.msg).to.equal("Bad request");
+              });
+          });
+          it("returns 200 when passed an empty body and increases the votes by 0", () => {
+            return request(app)
+              .patch("/api/comments/9")
+              .send({})
+              .expect(200)
+              .then(({ body: { votes } }) => {
+                expect(votes).to.equal(0);
+              });
+          });
         });
         describe("DELETE", () => {
           it("returns status 204", () => {
