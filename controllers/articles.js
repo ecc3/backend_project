@@ -10,7 +10,6 @@ exports.getArticleById = (req, res, next) => {
     .then(([article]) => {
       if (article) res.status(200).send(article);
       else {
-        console.log("no article");
         return Promise.reject({ status: 404, msg: "Article not found" });
       }
     })

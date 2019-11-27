@@ -226,7 +226,14 @@ describe("app", () => {
                 expect(body.msg).to.equal("Article not found");
               });
           });
-          //it("returns 400 for invalid id", () => {});
+          it("returns 400 for invalid id", () => {
+            return request(app)
+              .get("/api/articles/bad_id")
+              .expect(400)
+              .then(({ body }) => {
+                expect(body.msg).to.equal("Bad request");
+              });
+          });
         });
         describe("PATCH", () => {
           it("returns status 200", () => {
