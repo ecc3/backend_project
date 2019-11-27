@@ -27,3 +27,9 @@ exports.updateCommentById = (comment_id, inc_votes) => {
     .increment("votes", inc_votes)
     .returning("*");
 };
+
+exports.removeCommentById = comment_id => {
+  return knex("comments")
+    .where({ comment_id })
+    .del();
+};

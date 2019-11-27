@@ -378,6 +378,19 @@ describe("app", () => {
               });
           });
         });
+        describe("DELETE", () => {
+          it("returns status 204", () => {
+            return request(app)
+              .delete("/api/comments/8")
+              .expect(204);
+          });
+          it("removes comment from the database", () => {
+            return request(app)
+              .delete("/api/comments/8")
+              .expect(404);
+            //add extra testing when written error handling
+          });
+        });
       });
     });
   });

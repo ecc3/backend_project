@@ -1,7 +1,8 @@
 const {
   createNewComment,
   fetchCommentsForArticle,
-  updateCommentById
+  updateCommentById,
+  removeCommentById
 } = require("../models/comments");
 
 exports.postNewComment = (req, res, next) => {
@@ -12,7 +13,7 @@ exports.postNewComment = (req, res, next) => {
     .then(([comment]) => {
       res.status(201).send(comment);
     })
-    .catch(err => next(err));
+    .catch(next);
 };
 
 exports.getCommentsByArticleId = (req, res, next) => {
@@ -23,13 +24,31 @@ exports.getCommentsByArticleId = (req, res, next) => {
     .then(comments => {
       res.status(200).send({ comments });
     })
-    .catch(err => next(err));
+    .catch(next);
 };
 
 exports.patchCommentById = (req, res, next) => {
   const { comment_id } = req.params;
   const { inc_votes } = req.body;
-  updateCommentById(comment_id, inc_votes).then(([comment]) => {
-    res.status(200).send(comment);
-  });
+  updateCommentById(comment_id, inc_votes)
+    .then(([comment]) => {
+      res.status(200).send(comment);
+    })
+    .catch(next);
+};
+
+exports.deleteCommentById = (req, res, next) => {
+  const { comment_id } = req.params;
+  removeCommentById(comment_id)
+    .then(rowsRemoved => {
+      if (rowsRemoved === 0) {
+        return Promise.reject({
+          status: 404,
+          msg: `comment_id ${comment_id} not found`
+        });
+      } else res.sendStatus(204);
+    })
+    .catch(err => {
+      next(err);
+    });
 };
