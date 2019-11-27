@@ -82,12 +82,12 @@ describe("app", () => {
                 });
               });
           });
-          it("returns 400 for invalid username", () => {
+          it("returns 404 for username not found", () => {
             return request(app)
               .get("/api/users/wrong_username")
               .expect(400)
               .then(({ body }) => {
-                expect(body.msg).to.equal("Bad Request: Invalid Username");
+                expect(body.msg).to.equal("Username not found");
               });
           });
         });
