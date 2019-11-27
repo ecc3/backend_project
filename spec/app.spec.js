@@ -82,7 +82,14 @@ describe("app", () => {
                 });
               });
           });
-          //add tests for errors 404 and 405
+          it("returns 400 for invalid username", () => {
+            return request(app)
+              .get("/api/users/wrong_username")
+              .expect(400)
+              .then(({ body }) => {
+                expect(body.msg).to.equal("Bad Request: Invalid Username");
+              });
+          });
         });
       });
     });

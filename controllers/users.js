@@ -4,7 +4,8 @@ exports.getUserByUsername = (req, res, next) => {
   const { username } = req.params;
   fetchUser(username)
     .then(user => {
-      res.status(200).send(user);
+      if (!user) next({ status: 400, msg: "Bad Request: Invalid Username" });
+      else res.status(200).send(user);
     })
     .catch(err => next(err));
 };

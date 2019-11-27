@@ -1,4 +1,5 @@
 const express = require("express");
+const { customErrors } = require("./error-handlers");
 const app = express();
 
 app.use(express.json());
@@ -10,9 +11,9 @@ app.all("/*", (req, res, next) => {
   res.status(404).send({ msg: "Path not found" });
 });
 
+app.use(customErrors);
 app.use((err, req, res, next) => {
   console.log(err);
-  if (err.status) res.status(err.status).send({ msg: err.msg });
   res.status(500).send({ msg: "Internal server error" });
 });
 
