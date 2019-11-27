@@ -508,6 +508,14 @@ describe("app", () => {
                 expect(body.msg).to.equal("comment_id 8 not found");
               });
           });
+          it("returns 400 for invalid id", () => {
+            return request(app)
+              .delete("/api/comments/bad_id")
+              .expect(400)
+              .then(({ body }) => {
+                expect(body.msg).to.equal("Bad request");
+              });
+          });
         });
       });
     });
