@@ -15,20 +15,8 @@ exports.updateArticle = (article_id, inc_votes) => {
     .select("votes")
     .from("articles")
     .where({ article_id })
-    .returning("votes")
-    .then(response => {
-      return knex("articles")
-        .where({ article_id })
-        .update(
-          {
-            votes: response[0].votes + inc_votes
-          },
-          ["*"]
-        );
-    })
-    .then(response => {
-      return response[0];
-    });
+    .increment("votes", inc_votes)
+    .returning("*");
 };
 
 exports.fetchAllArticles = (
