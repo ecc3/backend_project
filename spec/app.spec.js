@@ -67,6 +67,87 @@ describe("app", () => {
       });
     });
     describe("/articles", () => {
+      describe("GET", () => {
+        it("responds with status 200", () => {
+          return request(app)
+            .get("/api/articles")
+            .expect(200);
+        });
+        it("responds with an array of articles, with the correct properties", () => {
+          return request(app)
+            .get("/api/articles")
+            .expect(200)
+            .then(({ body: { articles } }) => {
+              expect(articles.length).to.equal(12);
+              expect(articles[0]).to.have.keys([
+                "title",
+                "author",
+                "article_id",
+                "topic",
+                "created_at",
+                "votes",
+                "comment_count"
+              ]);
+              expect(articles[11]).to.deep.equal({
+                article_id: 12,
+                title: "Moustache",
+                topic: "mitch",
+                author: "butter_bridge",
+                created_at: "1974-11-26T12:21:54.171Z",
+                votes: 0,
+                comment_count: "0"
+              });
+            });
+        });
+        it("accepts a sort_by query that defaults to created_at and an order query that defaults to desc", () => {
+          return request(app)
+            .get("/api/articles")
+            .expect(200)
+            .then(({ body: { articles } }) => {
+              expect(articles).to.be.descendingBy("created_at");
+            });
+        });
+        it("accepts a sort_by query that sorts the articles by any valid column", () => {
+          return request(app)
+            .get("/api/articles?sort_by=title")
+            .expect(200)
+            .then(({ body: { articles } }) => {
+              expect(articles).to.be.descendingBy("title");
+            });
+        });
+        it("accepts an order query that can be set to asc or desc", () => {
+          return request(app)
+            .get("/api/articles?sort_by=title&order=asc")
+            .expect(200)
+            .then(({ body: { articles } }) => {
+              expect(articles).to.be.ascendingBy("title");
+            });
+        });
+        it("accepts an author query that filters the articles by the username specified in the query", () => {
+          return request(app)
+            .get("/api/articles?author=icellusedkars")
+            .expect(200)
+            .then(({ body: { articles } }) => {
+              expect(articles[0].author).to.equal("icellusedkars");
+            });
+        });
+        it("accepts a topic query that filters the articles by the topic value specified in the query", () => {
+          return request(app)
+            .get("/api/articles?topic=mitch")
+            .expect(200)
+            .then(({ body: { articles } }) => {
+              expect(articles[0].topic).to.equal("mitch");
+            });
+        });
+        it("includes a comment_count property in each object that correctly sums the number of comments for each article", () => {
+          return request(app)
+            .get("/api/articles")
+            .expect(200)
+            .then(({ body: { articles } }) => {
+              expect(articles[0].comment_count).to.equal("13");
+            });
+        });
+      });
       describe("/:article_id", () => {
         describe("GET", () => {
           it("returns status 200", () => {
