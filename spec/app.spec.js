@@ -25,6 +25,18 @@ describe("app", () => {
         expect(body.msg).to.equal("Path not found");
       });
   });
+  it("returns status 405 when using a method that is not allowed", () => {
+    const invalidMethods = ["delete", "patch", "put"];
+    const methodPromises = invalidMethods.map(method => {
+      return request(app)
+        [method]("/api/topics")
+        .expect(405)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("method not allowed");
+        });
+    });
+    return Promise.all(methodPromises);
+  });
   describe("/api", () => {
     describe("/topics", () => {
       describe("GET", () => {
