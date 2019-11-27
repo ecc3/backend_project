@@ -37,6 +37,7 @@ describe("app", () => {
     });
     return Promise.all(methodPromises);
   });
+  //test on every endpoint
   describe("/api", () => {
     describe("/topics", () => {
       describe("GET", () => {
@@ -85,7 +86,7 @@ describe("app", () => {
           it("returns 404 for username not found", () => {
             return request(app)
               .get("/api/users/wrong_username")
-              .expect(400)
+              .expect(404)
               .then(({ body }) => {
                 expect(body.msg).to.equal("Username not found");
               });
@@ -217,6 +218,15 @@ describe("app", () => {
                 expect(body.comment_count).to.equal("2");
               });
           });
+          it("returns 404 for valid id not found", () => {
+            return request(app)
+              .get("/api/articles/55")
+              .expect(404)
+              .then(({ body }) => {
+                expect(body.msg).to.equal("Article not found");
+              });
+          });
+          //it("returns 400 for invalid id", () => {});
         });
         describe("PATCH", () => {
           it("returns status 200", () => {

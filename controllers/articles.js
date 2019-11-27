@@ -8,7 +8,11 @@ exports.getArticleById = (req, res, next) => {
   const { article_id } = req.params;
   fetchArticle(article_id)
     .then(([article]) => {
-      res.status(200).send(article);
+      if (article) res.status(200).send(article);
+      else {
+        console.log("no article");
+        return Promise.reject({ status: 404, msg: "Article not found" });
+      }
     })
     .catch(next);
 };
