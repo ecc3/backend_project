@@ -25,19 +25,20 @@ describe("app", () => {
         expect(body.msg).to.equal("Path not found");
       });
   });
-  it("returns status 405 when using a method that is not allowed", () => {
-    const invalidMethods = ["delete", "patch", "put"];
-    const methodPromises = invalidMethods.map(method => {
-      return request(app)
-        [method]("/api/topics")
-        .expect(405)
-        .then(({ body }) => {
-          expect(body.msg).to.equal("method not allowed");
-        });
+  describe("405 errors", () => {
+    it("returns status 405 when using a method that is not allowed", () => {
+      const invalidMethods = ["delete", "patch", "put", "post"];
+      const methodPromises = invalidMethods.map(method => {
+        return request(app)
+          [method]("/api/topics")
+          .expect(405)
+          .then(({ body }) => {
+            expect(body.msg).to.equal("method not allowed");
+          });
+      });
+      return Promise.all(methodPromises);
     });
-    return Promise.all(methodPromises);
   });
-  //test on every endpoint
   describe("/api", () => {
     describe("/topics", () => {
       describe("GET", () => {
@@ -175,6 +176,39 @@ describe("app", () => {
               expect(articles[0].comment_count).to.equal("13");
             });
         });
+        it("returns 400 Bad request for invalid sort_by queries", () => {
+          return request(app)
+            .get("/api/articles?sort_by=invalid")
+            .expect(400)
+            .then(({ body: { msg } }) => {
+              expect(msg).to.equal("Bad request");
+            });
+        });
+        it("ignores invalid order queries", () => {
+          return request(app)
+            .get("/api/articles?order=invalid")
+            .expect(200)
+            .then(({ body: { articles } }) => {
+              expect(articles).to.be.descendingBy("created_at");
+            });
+        });
+        it("returns 400 Bad request for invalid topic queries", () => {
+          return request(app)
+            .get("/api/articles?topic=invalid")
+            .expect(400)
+            .then(({ body: { msg } }) => {
+              expect(msg).to.equal("Bad topic request");
+            });
+        });
+        it("returns 400 Bad request for invalid author queries", () => {
+          return request(app)
+            .get("/api/articles?author=invalid")
+            .expect(400)
+            .then(({ body: { msg } }) => {
+              expect(msg).to.equal("Bad author request");
+            });
+        });
+        //will not throw error if query both author and topic and give an invalid topic
       });
       describe("/:article_id", () => {
         describe("GET", () => {
@@ -486,7 +520,7 @@ describe("app", () => {
             return request(app)
               .get("/api/articles/10/comments")
               .expect(200)
-              .then(({ body: {msg} }) => {
+              .then(({ body: { msg } }) => {
                 expect(msg).to.equal("No comments");
               });
           });
@@ -502,7 +536,7 @@ describe("app", () => {
             return request(app)
               .get("/api/articles/1/comments?sort_by=invalid")
               .expect(400)
-              .then(({ body: {msg} }) => {
+              .then(({ body: { msg } }) => {
                 expect(msg).to.equal("Bad request");
               });
           });

@@ -19,12 +19,7 @@ exports.updateArticle = (article_id, inc_votes = 0) => {
     .returning("*");
 };
 
-exports.fetchAllArticles = (
-  sort_by = "created_at",
-  order = "desc",
-  author,
-  topic
-) => {
+exports.fetchAllArticles = (sort_by = "created_at", order, author, topic) => {
   return knex
     .select(
       "articles.author",

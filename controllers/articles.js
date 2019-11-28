@@ -3,6 +3,8 @@ const {
   updateArticle,
   fetchAllArticles
 } = require("../models/articles");
+const { fetchTopics } = require("../models/topics");
+const { fetchUser } = require("../models/users");
 
 exports.getArticleById = (req, res, next) => {
   const { article_id } = req.params;
@@ -29,10 +31,29 @@ exports.patchArticleById = (req, res, next) => {
 
 exports.getAllArticles = (req, res, next) => {
   const { sort_by } = req.query;
-  const { order } = req.query;
+  let { order } = req.query;
   const { author } = req.query;
   const { topic } = req.query;
-  fetchAllArticles(sort_by, order, author, topic)
+  if (order !== "asc") order = "desc";
+  return new Promise(function(resolve, reject) {
+    if (author) {
+      return fetchUser(author).then(user => {
+        if (!user) reject({ status: 400, msg: "Bad author request" });
+        else resolve("success");
+      });
+    } else if (topic) {
+      return fetchTopics().then(topics => {
+        const topicSlugs = topics.map(topicObj => topicObj.slug);
+        if (!topicSlugs.includes(topic)) {
+          reject({ status: 400, msg: "Bad topic request" });
+        } else resolve("success");
+      });
+    } else resolve("success");
+  })
+    .then(successMsg => {
+      return fetchAllArticles(sort_by, order, author, topic);
+    })
+
     .then(articles => {
       res.status(200).send({ articles });
     })

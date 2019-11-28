@@ -7,5 +7,5 @@ exports.getUserByUsername = (req, res, next) => {
       if (!user) next({ status: 404, msg: "Username not found" });
       else res.status(200).send(user);
     })
-    .catch(err => next(err));
+    .catch(next);
 };
