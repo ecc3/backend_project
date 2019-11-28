@@ -38,6 +38,66 @@ describe("app", () => {
       });
       return Promise.all(methodPromises);
     });
+    it("returns status 405 when using a method that is not allowed", () => {
+      const invalidMethods = ["delete", "patch", "put", "post"];
+      const methodPromises = invalidMethods.map(method => {
+        return request(app)
+        [method]("/api/users/butter_bridge")
+          .expect(405)
+          .then(({ body }) => {
+            expect(body.msg).to.equal("method not allowed");
+          });
+      });
+      return Promise.all(methodPromises);
+    });
+    it("returns status 405 when using a method that is not allowed", () => {
+      const invalidMethods = ["delete", "patch", "put", "post"];
+      const methodPromises = invalidMethods.map(method => {
+        return request(app)
+        [method]("/api/articles")
+          .expect(405)
+          .then(({ body }) => {
+            expect(body.msg).to.equal("method not allowed");
+          });
+      });
+      return Promise.all(methodPromises);
+    });
+    it("returns status 405 when using a method that is not allowed", () => {
+      const invalidMethods = ["delete", "post", "put"];
+      const methodPromises = invalidMethods.map(method => {
+        return request(app)
+        [method]("/api/articles/6")
+          .expect(405)
+          .then(({ body }) => {
+            expect(body.msg).to.equal("method not allowed");
+          });
+      });
+      return Promise.all(methodPromises);
+    });
+    it("returns status 405 when using a method that is not allowed", () => {
+      const invalidMethods = ["delete", "patch", "put"];
+      const methodPromises = invalidMethods.map(method => {
+        return request(app)
+        [method]("/api/articles/6/comments")
+          .expect(405)
+          .then(({ body }) => {
+            expect(body.msg).to.equal("method not allowed");
+          });
+      });
+      return Promise.all(methodPromises);
+    });
+    it("returns status 405 when using a method that is not allowed", () => {
+      const invalidMethods = ["get", "post", "put"];
+      const methodPromises = invalidMethods.map(method => {
+        return request(app)
+        [method]("/api/comments/1")
+          .expect(405)
+          .then(({ body }) => {
+            expect(body.msg).to.equal("method not allowed");
+          });
+      });
+      return Promise.all(methodPromises);
+    });
   });
   describe("/api", () => {
     describe("/topics", () => {
