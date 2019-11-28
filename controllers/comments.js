@@ -9,11 +9,23 @@ exports.postNewComment = (req, res, next) => {
   const { article_id } = req.params;
   const { username } = req.body;
   const { body } = req.body;
-  createNewComment(article_id, username, body)
-    .then(([comment]) => {
-      res.status(201).send(comment);
-    })
-    .catch(next);
+  if (!body || !username) {
+    next({
+      status: 400,
+      msg: "Malformed body: missing required fields"
+    });
+  } else if (typeof body !== "string") {
+    next({
+      status: 400,
+      msg: "Malformed body: incorrect type"
+    });
+  } else {
+    createNewComment(article_id, username, body)
+      .then(([comment]) => {
+        res.status(201).send(comment);
+      })
+      .catch(next);
+  }
 };
 
 exports.getCommentsByArticleId = (req, res, next) => {

@@ -327,6 +327,14 @@ describe("app", () => {
               })
               .expect(201);
           });
+          it("adds new comment to total comments", () => {
+            return request(app)
+              .get("/api/articles/5/comments")
+              .expect(200)
+              .then(({ body: { comments } }) => {
+                expect(comments.length).to.equal(3);
+              });
+          });
           it("responds with the posted comment", () => {
             return request(app)
               .post("/api/articles/7/comments")
@@ -351,6 +359,54 @@ describe("app", () => {
                 expect(body.body).to.equal(
                   "GUY FIERI, have you eaten at your new restaurant in Times Square? Have you pulled up one of the 500 seats at Guy’s American Kitchen & Bar and ordered a meal? Did you eat the food? Did it live up to your expectations? Did panic grip your soul as you stared into the whirling hypno wheel of the menu, where adjectives and nouns spin in a crazy vortex?"
                 );
+              });
+          });
+          it("returns status 400: malformed body when required fields are missing from the sent body", () => {
+            return request(app)
+              .post("/api/articles/6/comments")
+              .send({
+                username: "butter_bridge",
+                wrong_body: "Lovely. Aboslutely lovely."
+              })
+              .expect(400)
+              .then(({ body: { msg } }) => {
+                expect(msg).to.equal("Malformed body: missing required fields");
+              });
+          });
+          it("returns status 400 when sending a body value of the wrong type", () => {
+            return request(app)
+              .post("/api/articles/7/comments")
+              .send({
+                username: "butter_bridge",
+                body: 17453
+              })
+              .expect(400)
+              .then(({ body: { msg } }) => {
+                expect(msg).to.equal("Malformed body: incorrect type");
+              });
+          });
+          it("returns 404 for valid article id not found", () => {
+            return request(app)
+              .post("/api/articles/505/comments")
+              .send({
+                username: "butter_bridge",
+                body: "You are entering the dream time"
+              })
+              .expect(404)
+              .then(({ body: { msg } }) => {
+                expect(msg).to.equal("Not found");
+              });
+          });
+          it("returns 400 for invalid id", () => {
+            return request(app)
+              .post("/api/articles/bad_id/comments")
+              .send({
+                username: "butter_bridge",
+                body: "Less of a man, more of a mouse"
+              })
+              .expect(400)
+              .then(({ body: { msg } }) => {
+                expect(msg).to.equal("Bad request");
               });
           });
           //check new comment has been added to total??
