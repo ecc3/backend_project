@@ -41,7 +41,8 @@ exports.getAllArticles = (req, res, next) => {
         if (!user) reject({ status: 400, msg: "Bad author request" });
         else resolve("success");
       });
-    } else if (topic) {
+    }
+    if (topic) {
       return fetchTopics().then(topics => {
         const topicSlugs = topics.map(topicObj => topicObj.slug);
         if (!topicSlugs.includes(topic)) {

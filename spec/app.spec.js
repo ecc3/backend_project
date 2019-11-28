@@ -42,7 +42,7 @@ describe("app", () => {
       const invalidMethods = ["delete", "patch", "put", "post"];
       const methodPromises = invalidMethods.map(method => {
         return request(app)
-        [method]("/api/users/butter_bridge")
+          [method]("/api/users/butter_bridge")
           .expect(405)
           .then(({ body }) => {
             expect(body.msg).to.equal("method not allowed");
@@ -54,7 +54,7 @@ describe("app", () => {
       const invalidMethods = ["delete", "patch", "put", "post"];
       const methodPromises = invalidMethods.map(method => {
         return request(app)
-        [method]("/api/articles")
+          [method]("/api/articles")
           .expect(405)
           .then(({ body }) => {
             expect(body.msg).to.equal("method not allowed");
@@ -66,7 +66,7 @@ describe("app", () => {
       const invalidMethods = ["delete", "post", "put"];
       const methodPromises = invalidMethods.map(method => {
         return request(app)
-        [method]("/api/articles/6")
+          [method]("/api/articles/6")
           .expect(405)
           .then(({ body }) => {
             expect(body.msg).to.equal("method not allowed");
@@ -78,7 +78,7 @@ describe("app", () => {
       const invalidMethods = ["delete", "patch", "put"];
       const methodPromises = invalidMethods.map(method => {
         return request(app)
-        [method]("/api/articles/6/comments")
+          [method]("/api/articles/6/comments")
           .expect(405)
           .then(({ body }) => {
             expect(body.msg).to.equal("method not allowed");
@@ -90,7 +90,7 @@ describe("app", () => {
       const invalidMethods = ["get", "post", "put"];
       const methodPromises = invalidMethods.map(method => {
         return request(app)
-        [method]("/api/comments/1")
+          [method]("/api/comments/1")
           .expect(405)
           .then(({ body }) => {
             expect(body.msg).to.equal("method not allowed");
@@ -100,6 +100,19 @@ describe("app", () => {
     });
   });
   describe("/api", () => {
+    describe("GET", () => {
+      it("responds with a JSON object describing all available endpoints on API", () => {
+        return request(app)
+          .get("/api")
+          .expect(200)
+          .then(({ body: { endpoints } }) => {
+            expect(endpoints).to.be.a("string");
+            const parsedEndpoints = JSON.parse(endpoints);
+            const endpointPaths = Object.keys(parsedEndpoints);
+            expect(endpointPaths.length).to.equal(10);
+          });
+      });
+    });
     describe("/topics", () => {
       describe("GET", () => {
         it("responds with status 200", () => {
@@ -268,7 +281,16 @@ describe("app", () => {
               expect(msg).to.equal("Bad author request");
             });
         });
-        //will not throw error if query both author and topic and give an invalid topic
+        it("returns 400 Bad request when querying topic and author and one is invalid", () => {
+          return request(app)
+            .get("/api/articles?author=butter_bridge&topic=invalid")
+            .expect(400)
+            .then(({ body }) => {
+              expect(body.msg).equal("Bad topic request");
+              console.log(body.articles);
+            });
+        });
+        //will not throw error if query both author and topic at once and give an invalid topic
       });
       describe("/:article_id", () => {
         describe("GET", () => {

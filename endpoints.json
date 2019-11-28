@@ -9,8 +9,11 @@
       "topics": [{ "slug": "football", "description": "Footie!" }]
     }
   },
+  "GET /api/users/:username": {
+    "description": "serves an object of given user"
+  },
   "GET /api/articles": {
-    "description": "serves an array of all topics",
+    "description": "serves an array of all articles",
     "queries": ["author", "topic", "sort_by", "order"],
     "exampleResponse": {
       "articles": [
@@ -23,5 +26,23 @@
         }
       ]
     }
+  },
+  "GET /api/articles/:article_id": {
+    "description": "serves an object of given article"
+  },
+  "PATCH /api/articles/:article_id": {
+    "description": "updates and returns an object of given article"
+  },
+  "GET /api/articles/:article_id/comments": {
+    "description": "serves an array of comments for a given article"
+  },
+  "POST /api/articles/:article_id/comments": {
+    "description": "posts given comment and serves an object of given comment"
+  },
+  "PATCH /api/comments/:comment_id": {
+    "description": "updates and serves an object of given comment"
+  },
+  "DELETE /api/comments/:comment_id": {
+    "description": "deletes given comment data"
   }
 }
