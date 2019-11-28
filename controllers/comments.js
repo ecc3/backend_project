@@ -4,6 +4,7 @@ const {
   updateCommentById,
   removeCommentById
 } = require("../models/comments");
+const { fetchArticle } = require("../models/articles");
 
 exports.postNewComment = (req, res, next) => {
   const { article_id } = req.params;
@@ -31,11 +32,20 @@ exports.postNewComment = (req, res, next) => {
 exports.getCommentsByArticleId = (req, res, next) => {
   const { article_id } = req.params;
   const { sort_by } = req.query;
-  const { order } = req.query;
-  fetchCommentsForArticle(article_id, sort_by, order)
-    .then(comments => {
-      res.status(200).send({ comments });
+  let { order } = req.query;
+  if (order !== "asc") order = "desc";
+  Promise.all([
+    fetchCommentsForArticle(article_id, sort_by, order),
+    fetchArticle(article_id)
+  ])
+    .then(([comments, article]) => {
+      if (article.length === 0) {
+        return Promise.reject({ status: 404, msg: "Article not found" });
+      } else if (!comments[0]) {
+        res.status(200).send({ msg: "No comments" });
+      } else res.status(200).send({ comments });
     })
+
     .catch(next);
 };
 

@@ -409,7 +409,6 @@ describe("app", () => {
                 expect(msg).to.equal("Bad request");
               });
           });
-          //check new comment has been added to total??
         });
         describe("GET", () => {
           it("returns a status of 200", () => {
@@ -465,6 +464,46 @@ describe("app", () => {
               .expect(200)
               .then(({ body }) => {
                 expect(body.comments).to.be.ascendingBy("author");
+              });
+          });
+          it("returns 404 for valid article ID not found", () => {
+            return request(app)
+              .get("/api/articles/900/comments")
+              .expect(404)
+              .then(({ body: { msg } }) => {
+                expect(msg).to.equal("Article not found");
+              });
+          });
+          it("returns 400 for invalid article ID given", () => {
+            return request(app)
+              .get("/api/articles/nineninenine/comments")
+              .expect(400)
+              .then(({ body: { msg } }) => {
+                expect(msg).to.equal("Bad request");
+              });
+          });
+          it("returns status 200 for article with no comments", () => {
+            return request(app)
+              .get("/api/articles/10/comments")
+              .expect(200)
+              .then(({ body: {msg} }) => {
+                expect(msg).to.equal("No comments");
+              });
+          });
+          it("ignores invalid order queries", () => {
+            return request(app)
+              .get("/api/articles/1/comments?order=invalid")
+              .expect(200)
+              .then(({ body: { comments } }) => {
+                expect(comments).to.be.descendingBy("created_at");
+              });
+          });
+          it("returns 400: Bad request for invalid sort_by queries", () => {
+            return request(app)
+              .get("/api/articles/1/comments?sort_by=invalid")
+              .expect(400)
+              .then(({ body: {msg} }) => {
+                expect(msg).to.equal("Bad request");
               });
           });
         });

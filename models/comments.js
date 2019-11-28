@@ -14,7 +14,7 @@ exports.createNewComment = (article_id, username, body) => {
 exports.fetchCommentsForArticle = (
   article_id,
   sort_by = "created_at",
-  order = "desc"
+  order
 ) => {
   return knex("comments")
     .where({ article_id })
