@@ -33,16 +33,20 @@ describe("formatDates", () => {
 describe("makeRefObj", () => {
   it("does not mutate the passed list", () => {
     const topicDataCopy = [...topicData];
-    formatDates(topicDataCopy);
+    makeRefObj(topicDataCopy, "article_id", "title");
     expect(topicDataCopy).to.deep.equal(topicData);
   });
   it("returns a new object", () => {
-    const result = makeRefObj(topicData);
+    const result = makeRefObj(topicData, "article_id", "title");
     expect(typeof result).to.equal("object");
     expect(result).to.not.equal(topicData);
   });
   it("returns an object with key value pairs equivalent to the id and name values of the passed objects", () => {
-    const result = makeRefObj([{ article_id: 1, title: "A" }]);
+    const result = makeRefObj(
+      [{ article_id: 1, title: "A" }],
+      "article_id",
+      "title"
+    );
     expect(result.A).to.equal(1);
   });
 });

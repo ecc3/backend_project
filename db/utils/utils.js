@@ -5,10 +5,10 @@ exports.formatDates = list => {
 };
 const formatDates = exports.formatDates;
 
-exports.makeRefObj = list => {
-  const keys = Object.keys(list[0]);
-  const titleKey = keys[1];
-  const idKey = keys[0];
+exports.makeRefObj = (list, idKey, titleKey) => {
+  // const keys = Object.keys(list[0]);
+  // const titleKey = keys[1];
+  // const idKey = keys[0];
   return list.reduce((acc, val) => {
     acc[val[titleKey]] = val[idKey];
     return acc;
