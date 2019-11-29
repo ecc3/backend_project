@@ -11,20 +11,18 @@ describe("formatDates", () => {
     const articleDataCopy = [...articleData];
     formatDates(articleDataCopy);
     expect(articleDataCopy).to.deep.equal(articleData);
-    expect(articleDataCopy).to.not.equal(articleData);
   });
   it("does not mutate the objects inside the list", () => {
     const articleDataCopy = [...articleData];
-    const firstObjCopy = { ...articleDataCopy[0] };
     formatDates(articleDataCopy);
-    expect(firstObjCopy).to.deep.equal(articleData[0]);
-    expect(firstObjCopy).to.not.equal(articleData[0]);
+    expect(articleDataCopy[0]).to.deep.equal(articleData[0]);
   });
   it("returns a new array of objects", () => {
     const result = formatDates(articleData);
     expect(result).to.not.equal(articleData);
     expect(Array.isArray(result)).to.equal(true);
     expect(typeof result[0]).to.equal("object");
+    expect(result[0]).to.not.equal(articleData[0]);
   });
   it("returns a date object in the object property of created_at", () => {
     const result = formatDates(articleData);
@@ -64,15 +62,21 @@ describe("formatComments", () => {
     "Am I a cat?": 11,
     Moustache: 12
   };
-  it("does not mutate the passed data", () => {
+  it("returns a new array and does not mutate the passed data", () => {
     const commentDataCopy = [...commentData];
     formatComments(commentDataCopy, articleRef);
     expect(commentDataCopy).to.deep.equal(commentData);
+  });
+  it("does not mutate the objects inside each array of data", () => {
+    const commentDataCopy = [...commentData];
+    formatComments(commentDataCopy, articleRef);
+    expect(commentDataCopy[0]).to.deep.equal(commentData[0]);
   });
   it("returns a new array of formatted comments", () => {
     const result = formatComments(commentData, articleRef);
     expect(result).to.not.equal(commentData);
     expect(Array.isArray(result)).to.equal(true);
+    expect(result[0]).to.not.equal(commentData[0]);
   });
   it("changes the author key to a created_by key and the belongs_to key to article_id, and maintains the other keys", () => {
     const result = formatComments(commentData, articleRef);

@@ -2,12 +2,6 @@ exports.formatDates = list => {
   return list.map(({ created_at, ...otherArticleProperties }) => {
     return { created_at: new Date(created_at), ...otherArticleProperties };
   });
-
-  //   Obj => {
-  //   const jsDateObj = new Date(Obj.created_at);
-  //   Obj.created_at = jsDateObj;
-  //   return Obj;
-  // }));
 };
 const formatDates = exports.formatDates;
 
@@ -22,19 +16,14 @@ exports.makeRefObj = list => {
 };
 
 exports.formatComments = (comments, articleRef) => {
-  let newComments = [];
-  comments.forEach(commentObj => {
-    let commentObjCopy = { ...commentObj };
-    const created_by = commentObjCopy.created_by;
-    commentObjCopy.author = created_by;
-    delete commentObjCopy.created_by;
-
-    const { belongs_to } = commentObjCopy;
-    const article_id = articleRef[belongs_to];
-    commentObjCopy.article_id = article_id;
-    delete commentObjCopy.belongs_to;
-
-    newComments.push(commentObjCopy);
-  });
-  return formatDates(newComments);
+  return comments.map(
+    ({ belongs_to, created_by, created_at, ...restOfComment }) => {
+      return {
+        article_id: articleRef[belongs_to],
+        author: created_by,
+        created_at: new Date(created_at),
+        ...restOfComment
+      };
+    }
+  );
 };
