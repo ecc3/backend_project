@@ -1,9 +1,13 @@
 exports.formatDates = list => {
-  return (result = list.map(Obj => {
-    const jsDateObj = new Date(Obj.created_at);
-    Obj.created_at = jsDateObj;
-    return Obj;
-  }));
+  return list.map(({ created_at, ...otherArticleProperties }) => {
+    return { created_at: new Date(created_at), ...otherArticleProperties };
+  });
+
+  //   Obj => {
+  //   const jsDateObj = new Date(Obj.created_at);
+  //   Obj.created_at = jsDateObj;
+  //   return Obj;
+  // }));
 };
 const formatDates = exports.formatDates;
 

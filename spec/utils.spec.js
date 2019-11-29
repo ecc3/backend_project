@@ -11,6 +11,14 @@ describe("formatDates", () => {
     const articleDataCopy = [...articleData];
     formatDates(articleDataCopy);
     expect(articleDataCopy).to.deep.equal(articleData);
+    expect(articleDataCopy).to.not.equal(articleData);
+  });
+  it("does not mutate the objects inside the list", () => {
+    const articleDataCopy = [...articleData];
+    const firstObjCopy = { ...articleDataCopy[0] };
+    formatDates(articleDataCopy);
+    expect(firstObjCopy).to.deep.equal(articleData[0]);
+    expect(firstObjCopy).to.not.equal(articleData[0]);
   });
   it("returns a new array of objects", () => {
     const result = formatDates(articleData);
