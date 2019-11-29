@@ -98,6 +98,18 @@ describe("app", () => {
       });
       return Promise.all(methodPromises);
     });
+    it("returns status 405 when using a method that is not allowed", () => {
+      const invalidMethods = ["delete", "post", "patch", "put"];
+      const methodPromises = invalidMethods.map(method => {
+        return request(app)
+          [method]("/api")
+          .expect(405)
+          .then(({ body }) => {
+            expect(body.msg).to.equal("method not allowed");
+          });
+      });
+      return Promise.all(methodPromises);
+    });
   });
   describe("/api", () => {
     describe("GET", () => {
@@ -319,9 +331,8 @@ describe("app", () => {
               expect(articles[0].title).to.equal("Am I a cat?");
             });
         });
-        it('returns a total_count property displaying the total number of articles', () => {
-          return request(app)
-          .get('/api/articles')
+        it("returns a total_count property displaying the total number of articles", () => {
+          return request(app).get("/api/articles");
         });
       });
       describe("/:article_id", () => {

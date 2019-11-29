@@ -4,11 +4,11 @@ const {
   psqlHandle400s,
   psqlHandle404s
 } = require("./error-handlers");
+const apiRouter = require("./routes/api");
+
 const app = express();
 
 app.use(express.json());
-
-const apiRouter = require("./routes/api");
 
 app.use("/api", apiRouter);
 app.all("/*", (req, res, next) => {
@@ -19,7 +19,6 @@ app.use(customErrors);
 app.use(psqlHandle400s);
 app.use(psqlHandle404s);
 app.use((err, req, res, next) => {
-  console.log(err);
   res.status(500).send({ msg: "Internal server error" });
 });
 
