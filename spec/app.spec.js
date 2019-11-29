@@ -177,7 +177,7 @@ describe("app", () => {
         });
         it("responds with an array of articles, with the correct properties", () => {
           return request(app)
-            .get("/api/articles")
+            .get("/api/articles?limit=1000000")
             .expect(200)
             .then(({ body: { articles } }) => {
               expect(articles.length).to.equal(12);
@@ -291,6 +291,25 @@ describe("app", () => {
             });
         });
         //will not throw error if query both author and topic at once and give an invalid topic
+        it('accepts a limit query defaulting to 10, and a "p" query defaulting to 1', () => {
+          return request(app)
+            .get("/api/articles")
+            .expect(200)
+            .then(({ body: { articles } }) => {
+              expect(articles.length).to.equal(10);
+              expect(articles[0].title).to.equal(
+                "Living in the shadow of a great man"
+              );
+            });
+        });
+        it("returns the number of articles set in the limit query", () => {
+          return request(app)
+            .get("/api/articles?limit=7")
+            .expect(200)
+            .then(({ body: { articles } }) => {
+              expect(articles.length).to.equal(7);
+            });
+        });
       });
       describe("/:article_id", () => {
         describe("GET", () => {

@@ -19,7 +19,13 @@ exports.updateArticle = (article_id, inc_votes = 0) => {
     .returning("*");
 };
 
-exports.fetchAllArticles = (sort_by = "created_at", order, author, topic) => {
+exports.fetchAllArticles = (
+  sort_by = "created_at",
+  order,
+  author,
+  topic,
+  limit = 10
+) => {
   return knex
     .select(
       "articles.author",
@@ -32,6 +38,7 @@ exports.fetchAllArticles = (sort_by = "created_at", order, author, topic) => {
     .from("articles")
     .leftJoin("comments", "articles.article_id", "comments.article_id")
     .orderBy(sort_by, order)
+    .limit(limit)
     .count("comment_id as comment_count")
     .groupBy("articles.article_id")
     .modify(query => {
