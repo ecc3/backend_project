@@ -1,4 +1,4 @@
-const knex = require("../connection");
+const knex = require("../db/connection");
 
 exports.createNewComment = (article_id, username, body) => {
   return knex("comments").insert(

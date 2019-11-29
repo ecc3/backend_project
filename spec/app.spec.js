@@ -4,7 +4,7 @@ const chai = require("chai");
 const { expect } = chai;
 const request = require("supertest");
 const app = require("../app");
-const knex = require("../connection");
+const knex = require("../db/connection");
 
 chai.use(require("chai-sorted"));
 
@@ -318,6 +318,10 @@ describe("app", () => {
               expect(articles.length).to.equal(2);
               expect(articles[0].title).to.equal("Am I a cat?");
             });
+        });
+        it('returns a total_count property displaying the total number of articles', () => {
+          return request(app)
+          .get('/api/articles')
         });
       });
       describe("/:article_id", () => {

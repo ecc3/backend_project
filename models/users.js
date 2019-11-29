@@ -1,4 +1,4 @@
-const knex = require("../connection");
+const knex = require("../db/connection");
 
 exports.fetchUser = username => {
   return knex
