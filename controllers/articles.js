@@ -35,6 +35,7 @@ exports.getAllArticles = (req, res, next) => {
   const { author } = req.query;
   const { topic } = req.query;
   const { limit } = req.query;
+  const { p } = req.query;
   if (order !== "asc") order = "desc";
   return new Promise(function(resolve, reject) {
     if (author) {
@@ -53,7 +54,7 @@ exports.getAllArticles = (req, res, next) => {
     } else resolve("success");
   })
     .then(successMsg => {
-      return fetchAllArticles(sort_by, order, author, topic, limit);
+      return fetchAllArticles(sort_by, order, author, topic, limit, p);
     })
 
     .then(articles => {

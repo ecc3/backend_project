@@ -24,7 +24,8 @@ exports.fetchAllArticles = (
   order,
   author,
   topic,
-  limit = 10
+  limit = 10,
+  p = 1
 ) => {
   return knex
     .select(
@@ -39,6 +40,7 @@ exports.fetchAllArticles = (
     .leftJoin("comments", "articles.article_id", "comments.article_id")
     .orderBy(sort_by, order)
     .limit(limit)
+    .offset((p - 1) * limit)
     .count("comment_id as comment_count")
     .groupBy("articles.article_id")
     .modify(query => {

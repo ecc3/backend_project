@@ -310,6 +310,15 @@ describe("app", () => {
               expect(articles.length).to.equal(7);
             });
         });
+        it("returns the set of articles for a requested page", () => {
+          return request(app)
+            .get("/api/articles?p=2")
+            .expect(200)
+            .then(({ body: { articles } }) => {
+              expect(articles.length).to.equal(2);
+              expect(articles[0].title).to.equal("Am I a cat?");
+            });
+        });
       });
       describe("/:article_id", () => {
         describe("GET", () => {
