@@ -3,12 +3,8 @@ exports.formatDates = list => {
     return { created_at: new Date(created_at), ...otherArticleProperties };
   });
 };
-const formatDates = exports.formatDates;
 
 exports.makeRefObj = (list, idKey, titleKey) => {
-  // const keys = Object.keys(list[0]);
-  // const titleKey = keys[1];
-  // const idKey = keys[0];
   return list.reduce((acc, val) => {
     acc[val[titleKey]] = val[idKey];
     return acc;
