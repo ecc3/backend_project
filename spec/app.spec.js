@@ -269,12 +269,12 @@ describe("app", () => {
               expect(msg).to.equal("Bad request");
             });
         });
-        it("ignores invalid order queries", () => {
+        it("returns 400 Bad request for invalid order queries", () => {
           return request(app)
             .get("/api/articles?order=invalid")
-            .expect(200)
-            .then(({ body: { articles } }) => {
-              expect(articles).to.be.descendingBy("created_at");
+            .expect(400)
+            .then(({ body: { msg } }) => {
+              expect(msg).to.equal("Bad request");
             });
         });
         it("returns 404 Not found for invalid topic queries", () => {
@@ -666,12 +666,12 @@ describe("app", () => {
                 expect(msg).to.equal("No comments");
               });
           });
-          it("ignores invalid order queries", () => {
+          it("returns 400 for invalid order queries", () => {
             return request(app)
               .get("/api/articles/1/comments?order=invalid")
-              .expect(200)
-              .then(({ body: { comments } }) => {
-                expect(comments).to.be.descendingBy("created_at");
+              .expect(400)
+              .then(({ body: { msg } }) => {
+                expect(msg).to.equal("Bad request");
               });
           });
           it("returns 400: Bad request for invalid sort_by queries", () => {
