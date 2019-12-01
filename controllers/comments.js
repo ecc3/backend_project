@@ -39,14 +39,13 @@ exports.getCommentsByArticleId = (req, res, next) => {
     fetchCommentsForArticle(article_id, sort_by, order),
     fetchArticle(article_id)
   ])
-    .then(([comments, article]) => {
+    .then(([comments, [article]]) => {
       if (!article) {
         return Promise.reject({ status: 404, msg: "Article not found" });
       } else {
         res.status(200).send({ comments });
       }
     })
-
     .catch(next);
 };
 
