@@ -21,7 +21,7 @@ exports.updateArticle = (article_id, inc_votes = 0) => {
 
 exports.fetchAllArticles = (
   sort_by = "created_at",
-  order,
+  order = "desc",
   author,
   topic,
   limit = 10,

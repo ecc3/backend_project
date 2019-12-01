@@ -30,10 +30,11 @@ exports.patchArticleById = (req, res, next) => {
 };
 
 exports.getAllArticles = (req, res, next) => {
-  const { sort_by, author, topic, limit, p } = req.query;
-  let { order } = req.query;
+  const { sort_by, order, author, topic, limit, p } = req.query;
 
-  if (order !== "asc") order = "desc";
+  if (order && order !== ("asc" || "desc")) {
+    return Promise.reject({ status: 400, msg: "Bad request" }).catch(next);
+  }
 
   const promises = [fetchAllArticles(sort_by, order, author, topic, limit, p)];
   if (author) promises.push(fetchUser(author));

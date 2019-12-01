@@ -30,9 +30,11 @@ exports.postNewComment = (req, res, next) => {
 
 exports.getCommentsByArticleId = (req, res, next) => {
   const { article_id } = req.params;
-  const { sort_by } = req.query;
-  let { order } = req.query;
-  if (order !== "asc") order = "desc";
+  const { sort_by, order } = req.query;
+
+  if (order && order !== ("asc" || "desc")) {
+    return Promise.reject({ status: 400, msg: "Bad request" }).catch(next);
+  }
   Promise.all([
     fetchCommentsForArticle(article_id, sort_by, order),
     fetchArticle(article_id)
