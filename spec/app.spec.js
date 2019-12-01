@@ -159,9 +159,9 @@ describe("app", () => {
             return request(app)
               .get("/api/users/icellusedkars")
               .expect(200)
-              .then(({ body }) => {
-                expect(body).to.have.keys(["username", "avatar_url", "name"]);
-                expect(body).to.deep.equal({
+              .then(({ body: { user } }) => {
+                expect(user).to.have.keys(["username", "avatar_url", "name"]);
+                expect(user).to.deep.equal({
                   username: "icellusedkars",
                   name: "sam",
                   avatar_url:
@@ -277,28 +277,28 @@ describe("app", () => {
               expect(articles).to.be.descendingBy("created_at");
             });
         });
-        it("returns 400 Bad request for invalid topic queries", () => {
+        it("returns 404 Not found for invalid topic queries", () => {
           return request(app)
             .get("/api/articles?topic=invalid")
-            .expect(400)
+            .expect(404)
             .then(({ body: { msg } }) => {
-              expect(msg).to.equal("Bad topic request");
+              expect(msg).to.equal("Not found");
             });
         });
-        it("returns 400 Bad request for invalid author queries", () => {
+        it("returns 404 Not found for invalid author queries", () => {
           return request(app)
             .get("/api/articles?author=invalid")
-            .expect(400)
+            .expect(404)
             .then(({ body: { msg } }) => {
-              expect(msg).to.equal("Bad author request");
+              expect(msg).to.equal("Not found");
             });
         });
-        it("returns 400 Bad request when querying topic and author and one is invalid", () => {
+        it("returns 404 Not found when querying topic and author and one is invalid", () => {
           return request(app)
             .get("/api/articles?author=butter_bridge&topic=invalid")
-            .expect(400)
+            .expect(404)
             .then(({ body }) => {
-              expect(body.msg).equal("Bad topic request");
+              expect(body.msg).equal("Not found");
               console.log(body.articles);
             });
         });
@@ -346,8 +346,8 @@ describe("app", () => {
             return request(app)
               .get("/api/articles/3")
               .expect(200)
-              .then(response => {
-                expect(response.body).to.have.keys([
+              .then(({ body: { article } }) => {
+                expect(article).to.have.keys([
                   "author",
                   "title",
                   "article_id",
@@ -357,7 +357,7 @@ describe("app", () => {
                   "votes",
                   "comment_count"
                 ]);
-                expect(response.body).to.deep.equal({
+                expect(article).to.deep.equal({
                   article_id: 3,
                   title: "Eight pug gifs that remind me of mitch",
                   topic: "mitch",
@@ -373,8 +373,8 @@ describe("app", () => {
             return request(app)
               .get("/api/articles/5")
               .expect(200)
-              .then(({ body }) => {
-                expect(body.comment_count).to.equal("2");
+              .then(({ body: { article } }) => {
+                expect(article.comment_count).to.equal("2");
               });
           });
           it("returns 404 for valid id not found", () => {
@@ -406,26 +406,38 @@ describe("app", () => {
               .patch("/api/articles/4")
               .send({ inc_votes: 10 })
               .expect(200)
-              .then(({ body: { votes } }) => {
-                expect(votes).to.equal(10);
-              });
+              .then(
+                ({
+                  body: {
+                    article: { votes }
+                  }
+                }) => {
+                  expect(votes).to.equal(10);
+                }
+              );
           });
           it("decrements the number of votes when passed a negative number", () => {
             return request(app)
               .patch("/api/articles/1")
               .send({ inc_votes: -23 })
               .expect(200)
-              .then(({ body: { votes } }) => {
-                expect(votes).to.equal(77);
-              });
+              .then(
+                ({
+                  body: {
+                    article: { votes }
+                  }
+                }) => {
+                  expect(votes).to.equal(77);
+                }
+              );
           });
           it("returns the updated article object", () => {
             return request(app)
               .patch("/api/articles/5")
               .send({ inc_votes: 10 })
               .expect(200)
-              .then(({ body }) => {
-                expect(body).to.deep.equal({
+              .then(({ body: { article } }) => {
+                expect(article).to.deep.equal({
                   article_id: 5,
                   title: "UNCOVERED: catspiracy to bring down democracy",
                   topic: "cats",
@@ -469,9 +481,15 @@ describe("app", () => {
               .patch("/api/articles/9")
               .send({})
               .expect(200)
-              .then(({ body: { votes } }) => {
-                expect(votes).to.equal(0);
-              });
+              .then(
+                ({
+                  body: {
+                    article: { votes }
+                  }
+                }) => {
+                  expect(votes).to.equal(0);
+                }
+              );
           });
         });
       });
@@ -503,8 +521,8 @@ describe("app", () => {
                   "GUY FIERI, have you eaten at your new restaurant in Times Square? Have you pulled up one of the 500 seats at Guy’s American Kitchen & Bar and ordered a meal? Did you eat the food? Did it live up to your expectations? Did panic grip your soul as you stared into the whirling hypno wheel of the menu, where adjectives and nouns spin in a crazy vortex?"
               })
               .expect(201)
-              .then(({ body }) => {
-                expect(body).to.have.keys([
+              .then(({ body: { comment } }) => {
+                expect(comment).to.have.keys([
                   "comment_id",
                   "author",
                   "article_id",
@@ -512,10 +530,10 @@ describe("app", () => {
                   "created_at",
                   "body"
                 ]);
-                expect(body.article_id).to.equal(7);
-                expect(body.author).to.equal("butter_bridge");
-                expect(body.votes).to.equal(0);
-                expect(body.body).to.equal(
+                expect(comment.article_id).to.equal(7);
+                expect(comment.author).to.equal("butter_bridge");
+                expect(comment.votes).to.equal(0);
+                expect(comment.body).to.equal(
                   "GUY FIERI, have you eaten at your new restaurant in Times Square? Have you pulled up one of the 500 seats at Guy’s American Kitchen & Bar and ordered a meal? Did you eat the food? Did it live up to your expectations? Did panic grip your soul as you stared into the whirling hypno wheel of the menu, where adjectives and nouns spin in a crazy vortex?"
                 );
               });
@@ -682,8 +700,8 @@ describe("app", () => {
               .patch("/api/comments/3")
               .send({ inc_votes: 10 })
               .expect(200)
-              .then(({ body }) => {
-                expect(body).to.deep.equal({
+              .then(({ body: { comment } }) => {
+                expect(comment).to.deep.equal({
                   comment_id: 3,
                   article_id: 1,
                   body:
@@ -699,8 +717,8 @@ describe("app", () => {
               .patch("/api/comments/4")
               .send({ inc_votes: -50 })
               .expect(200)
-              .then(({ body }) => {
-                expect(body).to.deep.equal({
+              .then(({ body: { comment } }) => {
+                expect(comment).to.deep.equal({
                   comment_id: 4,
                   article_id: 1,
                   body:
@@ -743,9 +761,15 @@ describe("app", () => {
               .patch("/api/comments/9")
               .send({})
               .expect(200)
-              .then(({ body: { votes } }) => {
-                expect(votes).to.equal(0);
-              });
+              .then(
+                ({
+                  body: {
+                    comment: { votes }
+                  }
+                }) => {
+                  expect(votes).to.equal(0);
+                }
+              );
           });
         });
         describe("DELETE", () => {
