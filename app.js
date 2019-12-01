@@ -19,6 +19,7 @@ app.use(customErrors);
 app.use(psqlHandle400s);
 app.use(psqlHandle404s);
 app.use((err, req, res, next) => {
+  console.log(err);
   res.status(500).send({ msg: "Internal server error" });
 });
 

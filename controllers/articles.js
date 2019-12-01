@@ -3,14 +3,14 @@ const {
   updateArticle,
   fetchAllArticles
 } = require("../models/articles");
-const { fetchTopics } = require("../models/topics");
+const { fetchTopic } = require("../models/topics");
 const { fetchUser } = require("../models/users");
 
 exports.getArticleById = (req, res, next) => {
   const { article_id } = req.params;
   fetchArticle(article_id)
     .then(([article]) => {
-      if (article) res.status(200).send(article);
+      if (article) res.status(200).send({ article });
       else {
         return Promise.reject({ status: 404, msg: "Article not found" });
       }
@@ -23,42 +23,29 @@ exports.patchArticleById = (req, res, next) => {
   const { inc_votes } = req.body;
   updateArticle(article_id, inc_votes)
     .then(([article]) => {
-      if (article) res.status(200).send(article);
+      if (article) res.status(200).send({ article });
       else return Promise.reject({ status: 404, msg: "Article not found" });
     })
     .catch(next);
 };
 
 exports.getAllArticles = (req, res, next) => {
-  const { sort_by } = req.query;
+  const { sort_by, author, topic, limit, p } = req.query;
   let { order } = req.query;
-  const { author } = req.query;
-  const { topic } = req.query;
-  const { limit } = req.query;
-  const { p } = req.query;
-  if (order !== "asc") order = "desc";
-  return new Promise(function(resolve, reject) {
-    if (author) {
-      return fetchUser(author).then(user => {
-        if (!user) reject({ status: 400, msg: "Bad author request" });
-        else resolve("success");
-      });
-    }
-    if (topic) {
-      return fetchTopics().then(topics => {
-        const topicSlugs = topics.map(topicObj => topicObj.slug);
-        if (!topicSlugs.includes(topic)) {
-          reject({ status: 400, msg: "Bad topic request" });
-        } else resolve("success");
-      });
-    } else resolve("success");
-  })
-    .then(successMsg => {
-      return fetchAllArticles(sort_by, order, author, topic, limit, p);
-    })
 
-    .then(articles => {
-      res.status(200).send({ articles });
+  if (order !== "asc") order = "desc";
+
+  const promises = [fetchAllArticles(sort_by, order, author, topic, limit, p)];
+  if (author) promises.push(fetchUser(author));
+  if (topic) promises.push(fetchTopic(topic));
+
+  return Promise.all(promises)
+    .then(([articles, ...responses]) => {
+      if ((author || topic) && responses.includes(undefined)) {
+        return Promise.reject({ status: 404, msg: "Not found" });
+      } else {
+        res.status(200).send({ articles });
+      }
     })
     .catch(next);
 };

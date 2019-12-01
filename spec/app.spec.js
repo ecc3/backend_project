@@ -302,7 +302,6 @@ describe("app", () => {
               console.log(body.articles);
             });
         });
-        //will not throw error if query both author and topic at once and give an invalid topic
         it('accepts a limit query defaulting to 10, and a "p" query defaulting to 1', () => {
           return request(app)
             .get("/api/articles")
