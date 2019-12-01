@@ -1,14 +1,13 @@
 const knex = require("../db/connection");
 
 exports.createNewComment = (article_id, username, body) => {
-  return knex("comments").insert(
-    {
+  return knex("comments")
+    .insert({
       author: username,
       article_id: article_id,
       body: body
-    },
-    ["*"]
-  );
+    })
+    .returning("*");
 };
 
 exports.fetchCommentsForArticle = (
