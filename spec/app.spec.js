@@ -658,14 +658,6 @@ describe("app", () => {
                 expect(msg).to.equal("Bad request");
               });
           });
-          it("returns status 200 for article with no comments", () => {
-            return request(app)
-              .get("/api/articles/10/comments")
-              .expect(200)
-              .then(({ body: { msg } }) => {
-                expect(msg).to.equal("No comments");
-              });
-          });
           it("returns 400 for invalid order queries", () => {
             return request(app)
               .get("/api/articles/1/comments?order=invalid")
@@ -680,6 +672,14 @@ describe("app", () => {
               .expect(400)
               .then(({ body: { msg } }) => {
                 expect(msg).to.equal("Bad request");
+              });
+          });
+          it("returns an array of 0 comments when an article has no comments", () => {
+            return request(app)
+              .get("/api/articles/2/comments")
+              .expect(200)
+              .then(({ body }) => {
+                expect(body.comments.length).to.equal(0);
               });
           });
         });

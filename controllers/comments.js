@@ -42,9 +42,9 @@ exports.getCommentsByArticleId = (req, res, next) => {
     .then(([comments, article]) => {
       if (!article) {
         return Promise.reject({ status: 404, msg: "Article not found" });
-      } else if (!comments[0]) {
-        res.status(200).send({ msg: "No comments" });
-      } else res.status(200).send({ comments });
+      } else {
+        res.status(200).send({ comments });
+      }
     })
 
     .catch(next);
