@@ -1,4 +1,6 @@
+const cors = require("cors");
 const express = require("express");
+const app = express();
 const {
   customErrors,
   psqlHandle400s,
@@ -6,7 +8,7 @@ const {
 } = require("./error-handlers");
 const apiRouter = require("./routes/api");
 
-const app = express();
+app.use(cors());
 
 app.use(express.json());
 
