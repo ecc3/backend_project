@@ -229,12 +229,20 @@ describe("app", () => {
               expect(articles).to.be.descendingBy("title");
             });
         });
-        it("accepts an order query that can be set to asc or desc", () => {
+        it("accepts an order query that can be set to asc", () => {
           return request(app)
             .get("/api/articles?sort_by=title&order=asc")
             .expect(200)
             .then(({ body: { articles } }) => {
               expect(articles).to.be.ascendingBy("title");
+            });
+        });
+        it("accepts an order query that can be set to desc", () => {
+          return request(app)
+            .get("/api/articles?sort_by=title&order=desc")
+            .expect(200)
+            .then(({ body: { articles } }) => {
+              expect(articles).to.be.descendingBy("title");
             });
         });
         it("accepts an author query that filters the articles by the username specified in the query", () => {

@@ -32,7 +32,7 @@ exports.patchArticleById = (req, res, next) => {
 exports.getAllArticles = (req, res, next) => {
   const { sort_by, order, author, topic, limit, p } = req.query;
 
-  if (order && order !== ("asc" || "desc")) {
+  if (order && order !== "asc" && order !== "desc") {
     return Promise.reject({ status: 400, msg: "Bad request" }).catch(next);
   }
 
