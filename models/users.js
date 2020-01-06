@@ -13,3 +13,13 @@ exports.fetchUser = username => {
 exports.fetchUsers = () => {
   return knex.select("*").from("users");
 };
+
+exports.createUser = (username, name, avatar_url) => {
+  return knex("users")
+    .insert({
+      username: username,
+      name: name,
+      avatar_url: avatar_url
+    })
+    .returning("*");
+};

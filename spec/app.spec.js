@@ -112,7 +112,7 @@ describe("app", () => {
     });
   });
   it("returns status 405 when usig a method that s not allowed", () => {
-    const invalidMethods = ["delete", "post", "patch", "put"];
+    const invalidMethods = ["delete", "patch", "put"];
     const methodPromises = invalidMethods.map(method => {
       return request(app)
         [method]("/api/users")
@@ -179,6 +179,72 @@ describe("app", () => {
                 avatar_url:
                   "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
               });
+            });
+        });
+      });
+      describe("POST", () => {
+        it("respond with status 201", () => {
+          return request(app)
+            .post("/api/users")
+            .send({
+              username: "loyal_gonzola1",
+              name: "mandy",
+              avatar_url:
+                "https://cdn1.thr.com/sites/default/files/imagecache/768x433/2019/03/avatar-publicity_still-h_2019.jpg"
+            })
+            .expect(201);
+        });
+        it("adds a new user to the total users", () => {
+          return request(app)
+            .get("/api/users")
+            .expect(200)
+            .then(({ body: { users } }) => {
+              expect(users.length).to.equal(5);
+            });
+        });
+        it("responds with the posted user", () => {
+          return request(app)
+            .post("/api/users")
+            .send({
+              username: "loyal_gonzola2",
+              name: "mandy",
+              avatar_url:
+                "https://cdn1.thr.com/sites/default/files/imagecache/768x433/2019/03/avatar-publicity_still-h_2019.jpg"
+            })
+            .expect(201)
+            .then(({ body: { user } }) => {
+              expect(user).to.have.keys(["username", "name", "avatar_url"]);
+              expect(user.username).to.equal("loyal_gonzola2");
+              expect(user.name).to.equal("mandy");
+              expect(user.avatar_url).to.equal(
+                "https://cdn1.thr.com/sites/default/files/imagecache/768x433/2019/03/avatar-publicity_still-h_2019.jpg"
+              );
+            });
+        });
+        it("returns status 400: malformed body when required fields are missing from the sent body", () => {
+          return request(app)
+            .post("/api/users")
+            .send({
+              username: "loyal_gonzola3",
+              wrong_name: "Lovely. Aboslutely lovely."
+            })
+            .expect(400)
+            .then(({ body: { msg } }) => {
+              expect(msg).to.equal("Malformed body: missing required fields");
+            });
+        });
+        it("returns status 400 when sending a body value of the wrong type", () => {
+          return request(app)
+            .post("/api/users")
+            .send({
+              username: "loyal_gonzola4",
+              name: 57357,
+              avatar_url:
+                "https://cdn1.thr.com/sites/default/files/imagecache/768x433/2019/03/avatar-publicity_still-h_2019.jpg"
+            })
+            .expect(400)
+            .then(({ body: { msg } }) => {
+              expect(msg).to.equal("Malformed body: incorrect type");
             });
         });
       });
