@@ -48,3 +48,7 @@ exports.fetchAllArticles = (
       if (topic) query.where({ topic });
     });
 };
+
+exports.countAllArticles = () => {
+  return knex("articles").count("article_id", { as: "total_count" });
+};

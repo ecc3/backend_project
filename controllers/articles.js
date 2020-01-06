@@ -1,7 +1,8 @@
 const {
   fetchArticle,
   updateArticle,
-  fetchAllArticles
+  fetchAllArticles,
+  countAllArticles
 } = require("../models/articles");
 const { fetchTopic } = require("../models/topics");
 const { fetchUser } = require("../models/users");
@@ -36,16 +37,21 @@ exports.getAllArticles = (req, res, next) => {
     return Promise.reject({ status: 400, msg: "Bad request" }).catch(next);
   }
 
-  const promises = [fetchAllArticles(sort_by, order, author, topic, limit, p)];
+  const promises = [
+    fetchAllArticles(sort_by, order, author, topic, limit, p),
+    countAllArticles()
+  ];
   if (author) promises.push(fetchUser(author));
   if (topic) promises.push(fetchTopic(topic));
 
   return Promise.all(promises)
-    .then(([articles, ...responses]) => {
+    .then(([articles, countItem, ...responses]) => {
       if ((author || topic) && responses.includes(undefined)) {
         return Promise.reject({ status: 404, msg: "Not found" });
       } else {
-        res.status(200).send({ articles });
+        res
+          .status(200)
+          .send({ articles, total_count: countItem[0].total_count });
       }
     })
     .catch(next);

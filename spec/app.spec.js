@@ -339,7 +339,14 @@ describe("app", () => {
             });
         });
         it("returns a total_count property displaying the total number of articles", () => {
-          return request(app).get("/api/articles");
+          return request(app)
+            .get("/api/articles?limit=3&p=2&topic=mitch")
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.articles.length).to.equal(3);
+              expect(body.articles[0].title).to.equal("Student SUES Mitch!");
+              expect(body.total_count).to.equal("12");
+            });
         });
       });
       describe("/:article_id", () => {
