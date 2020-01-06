@@ -45,13 +45,11 @@ exports.getAllArticles = (req, res, next) => {
   if (topic) promises.push(fetchTopic(topic));
 
   return Promise.all(promises)
-    .then(([articles, countItem, ...responses]) => {
+    .then(([articles, [countItem], ...responses]) => {
       if ((author || topic) && responses.includes(undefined)) {
         return Promise.reject({ status: 404, msg: "Not found" });
       } else {
-        res
-          .status(200)
-          .send({ articles, total_count: countItem[0].total_count });
+        res.status(200).send({ articles, total_count: countItem.total_count });
       }
     })
     .catch(next);

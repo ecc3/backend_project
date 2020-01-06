@@ -697,6 +697,48 @@ describe("app", () => {
                 expect(body.comments.length).to.equal(0);
               });
           });
+          it('accepts a limit query defaulting to 10, and a "p" query defaulting to 1', () => {
+            return request(app)
+              .get("/api/articles/1/comments")
+              .expect(200)
+              .then(({ body: { comments } }) => {
+                expect(comments.length).to.equal(10);
+                expect(comments[0].body).to.equal(
+                  "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky."
+                );
+              });
+          });
+          it("returns the number of comments set in the limit query", () => {
+            return request(app)
+              .get("/api/articles/1/comments?limit=7")
+              .expect(200)
+              .then(({ body: { comments } }) => {
+                expect(comments.length).to.equal(7);
+              });
+          });
+          it("returns the set of articles for a requested page", () => {
+            return request(app)
+              .get("/api/articles/1/comments?p=2")
+              .expect(200)
+              .then(({ body: { comments } }) => {
+                expect(comments.length).to.equal(3);
+                expect(comments[0].body).to.equal(
+                  "Massive intercranial brain haemorrhage"
+                );
+              });
+          });
+          it("returns a total_count property displaying the total number of articles", () => {
+            return request(app)
+              .get("/api/articles/1/comments?limit=3&p=2")
+              .expect(200)
+              .then(({ body }) => {
+                expect(body.comments.length).to.equal(3);
+                expect(body.comments[0].body).to.equal(
+                  "I hate streaming noses"
+                );
+                expect(body.total_count).to.equal("13");
+              });
+          });
         });
       });
     });

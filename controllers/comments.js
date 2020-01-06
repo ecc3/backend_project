@@ -30,20 +30,20 @@ exports.postNewComment = (req, res, next) => {
 
 exports.getCommentsByArticleId = (req, res, next) => {
   const { article_id } = req.params;
-  const { sort_by, order } = req.query;
+  const { sort_by, order, limit, p } = req.query;
 
   if (order && order !== ("asc" || "desc")) {
     return Promise.reject({ status: 400, msg: "Bad request" }).catch(next);
   }
   Promise.all([
-    fetchCommentsForArticle(article_id, sort_by, order),
+    fetchCommentsForArticle(article_id, sort_by, order, limit, p),
     fetchArticle(article_id)
   ])
     .then(([comments, [article]]) => {
       if (!article) {
         return Promise.reject({ status: 404, msg: "Article not found" });
       } else {
-        res.status(200).send({ comments });
+        res.status(200).send({ comments, total_count: article.comment_count });
       }
     })
     .catch(next);

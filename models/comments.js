@@ -13,11 +13,15 @@ exports.createNewComment = (article_id, username, body) => {
 exports.fetchCommentsForArticle = (
   article_id,
   sort_by = "created_at",
-  order = "desc"
+  order = "desc",
+  limit = 10,
+  p = 1
 ) => {
   return knex("comments")
     .where({ article_id })
-    .orderBy(sort_by, order);
+    .orderBy(sort_by, order)
+    .limit(limit)
+    .offset((p - 1) * limit);
 };
 
 exports.updateCommentById = (comment_id, inc_votes = 0) => {
