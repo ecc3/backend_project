@@ -9,3 +9,7 @@ exports.fetchUser = username => {
       return response[0];
     });
 };
+
+exports.fetchUsers = () => {
+  return knex.select("*").from("users");
+};

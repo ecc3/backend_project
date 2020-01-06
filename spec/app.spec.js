@@ -111,6 +111,18 @@ describe("app", () => {
       return Promise.all(methodPromises);
     });
   });
+  it("returns status 405 when usig a method that s not allowed", () => {
+    const invalidMethods = ["delete", "post", "patch", "put"];
+    const methodPromises = invalidMethods.map(method => {
+      return request(app)
+        [method]("/api/users")
+        .expect(405)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("method not allowed");
+        });
+    });
+    return Promise.all(methodPromises);
+  });
   describe("/api", () => {
     describe("GET", () => {
       it("responds with a JSON object describing all available endpoints on API", () => {
@@ -136,10 +148,10 @@ describe("app", () => {
           return request(app)
             .get("/api/topics")
             .expect(200)
-            .then(({ body }) => {
-              expect(body.topics).to.be.an("array");
-              expect(body.topics[0]).to.have.keys(["description", "slug"]);
-              expect(body.topics[0]).to.deep.equal({
+            .then(({ body: { topics } }) => {
+              expect(topics).to.be.an("array");
+              expect(topics[0]).to.have.keys(["description", "slug"]);
+              expect(topics[0]).to.deep.equal({
                 description: "The man, the Mitch, the legend",
                 slug: "mitch"
               });
@@ -148,6 +160,28 @@ describe("app", () => {
       });
     });
     describe("/users", () => {
+      describe("GET", () => {
+        it("responds wth status 200", () => {
+          return request(app)
+            .get("/api/users")
+            .expect(200);
+        });
+        it("responds with an object of users containing an array of all the users with username, name and avatar properties", () => {
+          return request(app)
+            .get("/api/users")
+            .expect(200)
+            .then(({ body: { users } }) => {
+              expect(users).to.be.an("array");
+              expect(users[0]).to.have.keys(["username", "name", "avatar_url"]);
+              expect(users[0]).to.deep.equal({
+                username: "butter_bridge",
+                name: "jonny",
+                avatar_url:
+                  "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+              });
+            });
+        });
+      });
       describe("/:username", () => {
         describe("GET", () => {
           it("returns status 200 for getting a user by their username", () => {
