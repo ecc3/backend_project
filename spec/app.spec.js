@@ -118,9 +118,8 @@ describe("app", () => {
           .get("/api")
           .expect(200)
           .then(({ body: { endpoints } }) => {
-            expect(endpoints).to.be.a("string");
-            const parsedEndpoints = JSON.parse(endpoints);
-            const endpointPaths = Object.keys(parsedEndpoints);
+            expect(endpoints).to.be.an("object");
+            const endpointPaths = Object.keys(endpoints);
             expect(endpointPaths.length).to.equal(10);
           });
       });
@@ -307,7 +306,6 @@ describe("app", () => {
             .expect(404)
             .then(({ body }) => {
               expect(body.msg).equal("Not found");
-              console.log(body.articles);
             });
         });
         it('accepts a limit query defaulting to 10, and a "p" query defaulting to 1', () => {
