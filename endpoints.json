@@ -9,6 +9,30 @@
       "topics": [{ "slug": "football", "description": "Footie!" }]
     }
   },
+  "GET /api/users": {
+    "description": "serves an array of all users",
+    "queries": [],
+    "exampleResponse": {
+      "users": [
+        {
+          "username": "tickle122",
+          "avatar_url": "https://www.spiritsurfers.net/monastery/wp-content/uploads/_41500270_mrtickle.jpg",
+          "name": "Tom Tickle"
+        }
+      ]
+    }
+  },
+  "POST /api/users": {
+    "description": "adds user data to database and serves object of created user",
+    "queries": [],
+    "exampleBody": {
+      "user": {
+        "username": "headyteddy",
+        "avatar_url": "https://resize.hswstatic.com/w_907/gif/guinea-pig-1.jpg",
+        "name": "Ted Heath"
+      }
+    }
+  },
   "GET /api/users/:username": {
     "description": "serves an object of given user",
     "queries": [],
@@ -21,7 +45,7 @@
     }
   },
   "GET /api/articles": {
-    "description": "serves an array of all articles",
+    "description": "serves an array of all articles, that can be sorted and ordered, filtered by author or topic, and is paginated according to default or provided limit and page queries",
     "queries": ["author", "topic", "sort_by", "order", "limit", "p"],
     "exampleResponse": {
       "articles": [
@@ -70,8 +94,8 @@
     }
   },
   "GET /api/articles/:article_id/comments": {
-    "description": "serves an array of comments for a given article",
-    "queries": ["sort_by, order"],
+    "description": "serves an array of comments for a given article, that can be sorted and ordered, and is paginated according to default or provided limit and page queries",
+    "queries": ["sort_by, order, limit, p"],
     "exampleResponse": {
       "comments": [
         {
