@@ -111,6 +111,18 @@ describe("app", () => {
       return Promise.all(methodPromises);
     });
   });
+  it("returns status 405 when usig a method that s not allowed", () => {
+    const invalidMethods = ["delete", "patch", "put"];
+    const methodPromises = invalidMethods.map(method => {
+      return request(app)
+        [method]("/api/users")
+        .expect(405)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("method not allowed");
+        });
+    });
+    return Promise.all(methodPromises);
+  });
   describe("/api", () => {
     describe("GET", () => {
       it("responds with a JSON object describing all available endpoints on API", () => {
@@ -135,10 +147,10 @@ describe("app", () => {
           return request(app)
             .get("/api/topics")
             .expect(200)
-            .then(({ body }) => {
-              expect(body.topics).to.be.an("array");
-              expect(body.topics[0]).to.have.keys(["description", "slug"]);
-              expect(body.topics[0]).to.deep.equal({
+            .then(({ body: { topics } }) => {
+              expect(topics).to.be.an("array");
+              expect(topics[0]).to.have.keys(["description", "slug"]);
+              expect(topics[0]).to.deep.equal({
                 description: "The man, the Mitch, the legend",
                 slug: "mitch"
               });
@@ -147,6 +159,94 @@ describe("app", () => {
       });
     });
     describe("/users", () => {
+      describe("GET", () => {
+        it("responds wth status 200", () => {
+          return request(app)
+            .get("/api/users")
+            .expect(200);
+        });
+        it("responds with an object of users containing an array of all the users with username, name and avatar properties", () => {
+          return request(app)
+            .get("/api/users")
+            .expect(200)
+            .then(({ body: { users } }) => {
+              expect(users).to.be.an("array");
+              expect(users[0]).to.have.keys(["username", "name", "avatar_url"]);
+              expect(users[0]).to.deep.equal({
+                username: "butter_bridge",
+                name: "jonny",
+                avatar_url:
+                  "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+              });
+            });
+        });
+      });
+      describe("POST", () => {
+        it("respond with status 201", () => {
+          return request(app)
+            .post("/api/users")
+            .send({
+              username: "loyal_gonzola1",
+              name: "mandy",
+              avatar_url:
+                "https://cdn1.thr.com/sites/default/files/imagecache/768x433/2019/03/avatar-publicity_still-h_2019.jpg"
+            })
+            .expect(201);
+        });
+        it("adds a new user to the total users", () => {
+          return request(app)
+            .get("/api/users")
+            .expect(200)
+            .then(({ body: { users } }) => {
+              expect(users.length).to.equal(5);
+            });
+        });
+        it("responds with the posted user", () => {
+          return request(app)
+            .post("/api/users")
+            .send({
+              username: "loyal_gonzola2",
+              name: "mandy",
+              avatar_url:
+                "https://cdn1.thr.com/sites/default/files/imagecache/768x433/2019/03/avatar-publicity_still-h_2019.jpg"
+            })
+            .expect(201)
+            .then(({ body: { user } }) => {
+              expect(user).to.have.keys(["username", "name", "avatar_url"]);
+              expect(user.username).to.equal("loyal_gonzola2");
+              expect(user.name).to.equal("mandy");
+              expect(user.avatar_url).to.equal(
+                "https://cdn1.thr.com/sites/default/files/imagecache/768x433/2019/03/avatar-publicity_still-h_2019.jpg"
+              );
+            });
+        });
+        it("returns status 400: malformed body when required fields are missing from the sent body", () => {
+          return request(app)
+            .post("/api/users")
+            .send({
+              username: "loyal_gonzola3",
+              wrong_name: "Lovely. Aboslutely lovely."
+            })
+            .expect(400)
+            .then(({ body: { msg } }) => {
+              expect(msg).to.equal("Malformed body: missing required fields");
+            });
+        });
+        it("returns status 400 when sending a body value of the wrong type", () => {
+          return request(app)
+            .post("/api/users")
+            .send({
+              username: "loyal_gonzola4",
+              name: 57357,
+              avatar_url:
+                "https://cdn1.thr.com/sites/default/files/imagecache/768x433/2019/03/avatar-publicity_still-h_2019.jpg"
+            })
+            .expect(400)
+            .then(({ body: { msg } }) => {
+              expect(msg).to.equal("Malformed body: incorrect type");
+            });
+        });
+      });
       describe("/:username", () => {
         describe("GET", () => {
           it("returns status 200 for getting a user by their username", () => {
@@ -337,7 +437,14 @@ describe("app", () => {
             });
         });
         it("returns a total_count property displaying the total number of articles", () => {
-          return request(app).get("/api/articles");
+          return request(app)
+            .get("/api/articles?limit=3&p=2&topic=mitch")
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.articles.length).to.equal(3);
+              expect(body.articles[0].title).to.equal("Student SUES Mitch!");
+              expect(body.total_count).to.equal("12");
+            });
         });
       });
       describe("/:article_id", () => {
@@ -686,6 +793,48 @@ describe("app", () => {
               .expect(200)
               .then(({ body }) => {
                 expect(body.comments.length).to.equal(0);
+              });
+          });
+          it('accepts a limit query defaulting to 10, and a "p" query defaulting to 1', () => {
+            return request(app)
+              .get("/api/articles/1/comments")
+              .expect(200)
+              .then(({ body: { comments } }) => {
+                expect(comments.length).to.equal(10);
+                expect(comments[0].body).to.equal(
+                  "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky."
+                );
+              });
+          });
+          it("returns the number of comments set in the limit query", () => {
+            return request(app)
+              .get("/api/articles/1/comments?limit=7")
+              .expect(200)
+              .then(({ body: { comments } }) => {
+                expect(comments.length).to.equal(7);
+              });
+          });
+          it("returns the set of articles for a requested page", () => {
+            return request(app)
+              .get("/api/articles/1/comments?p=2")
+              .expect(200)
+              .then(({ body: { comments } }) => {
+                expect(comments.length).to.equal(3);
+                expect(comments[0].body).to.equal(
+                  "Massive intercranial brain haemorrhage"
+                );
+              });
+          });
+          it("returns a total_count property displaying the total number of articles", () => {
+            return request(app)
+              .get("/api/articles/1/comments?limit=3&p=2")
+              .expect(200)
+              .then(({ body }) => {
+                expect(body.comments.length).to.equal(3);
+                expect(body.comments[0].body).to.equal(
+                  "I hate streaming noses"
+                );
+                expect(body.total_count).to.equal("13");
               });
           });
         });
